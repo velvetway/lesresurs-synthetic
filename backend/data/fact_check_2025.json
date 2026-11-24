@@ -1,0 +1,69 @@
+{
+ "n_fires_2025_with_area_at_detection_and_delay": 710,
+ "share_forces_below_norm": 0.2197,
+ "share_arrival_beyond_norm": 0.1225,
+ "by_arrival": [
+  {
+   "group": "прибытие в нормативе (п. 51)",
+   "n": 623,
+   "large_share": 0.1525,
+   "median_area_ha": 3.5,
+   "median_cost_thousand_rub": 45.7
+  },
+  {
+   "group": "прибытие сверх норматива",
+   "n": 87,
+   "large_share": 0.4138,
+   "median_area_ha": 7.3,
+   "median_cost_thousand_rub": 65.9
+  }
+ ],
+ "by_arrival_small_at_detection": [
+  {
+   "group": "в нормативе, < 1 га при обнаружении",
+   "n": 266,
+   "large_share": 0.1203,
+   "median_area_ha": 2.6,
+   "median_cost_thousand_rub": 40.1
+  },
+  {
+   "group": "сверх норматива, < 1 га при обнаружении",
+   "n": 38,
+   "large_share": 0.3684,
+   "median_area_ha": 4.35,
+   "median_cost_thousand_rub": 107.8
+  }
+ ],
+ "by_forces_small_at_detection": [
+  {
+   "group": "силы ≥ рекомендации, < 1 га при обнаружении",
+   "n": 253,
+   "large_share": 0.1818,
+   "median_area_ha": 2.7,
+   "median_cost_thousand_rub": 56.4
+  },
+  {
+   "group": "силы < рекомендации, < 1 га при обнаружении",
+   "n": 51,
+   "large_share": 0.0,
+   "median_area_ha": 3.1,
+   "median_cost_thousand_rub": 29.4
+  }
+ ],
+ "by_forces_and_time_small": [
+  {
+   "group": "силы ≥ рекомендации и в нормативе (< 1 га)",
+   "n": 227,
+   "large_share": 0.141,
+   "median_area_ha": 2.5,
+   "median_cost_thousand_rub": 43.5
+  },
+  {
+   "group": "иначе (< 1 га)",
+   "n": 77,
+   "large_share": 0.1818,
+   "median_area_ha": 3.7,
+   "median_cost_thousand_rub": 59.8
+  }
+ ]
+}

@@ -1,0 +1,86 @@
+{
+ "region": "Северотаёжный модельный край",
+ "episodes": 962,
+ "solve_time_median_s": 0.0027,
+ "solve_time_p95_s": 0.0037,
+ "all_years": [
+  {
+   "policy": "assistant",
+   "n_fires": 5510,
+   "served_share": 0.9385,
+   "mean_arrival_h": 1.822,
+   "median_arrival_h": 1.419,
+   "norm_ok_share": 0.8027,
+   "expected_large_share": 0.2475,
+   "expected_mean_area_ha": 20.72,
+   "expected_damage_mln": 699.928,
+   "deficit_groups": 1818
+  },
+  {
+   "policy": "fifo",
+   "n_fires": 5510,
+   "served_share": 0.9445,
+   "mean_arrival_h": 1.744,
+   "median_arrival_h": 1.223,
+   "norm_ok_share": 0.7702,
+   "expected_large_share": 0.2417,
+   "expected_mean_area_ha": 19.95,
+   "expected_damage_mln": 689.567,
+   "deficit_groups": 2614
+  },
+  {
+   "policy": "fact",
+   "n_fires": 5510,
+   "served_share": 1.0,
+   "mean_arrival_h": 1.264,
+   "median_arrival_h": 1.031,
+   "norm_ok_share": 0.8866,
+   "expected_large_share": 0.1754,
+   "expected_mean_area_ha": 10.29,
+   "expected_damage_mln": 571.636,
+   "deficit_groups": 1258,
+   "observed_large_share": 0.1833,
+   "observed_mean_area_ha": 44.59
+  }
+ ],
+ "year_2025": [
+  {
+   "policy": "assistant",
+   "n_fires": 217,
+   "served_share": 0.9539,
+   "mean_arrival_h": 1.771,
+   "median_arrival_h": 1.299,
+   "norm_ok_share": 0.8157,
+   "expected_large_share": 0.2359,
+   "expected_mean_area_ha": 17.96,
+   "expected_damage_mln": 26.753,
+   "deficit_groups": 30
+  },
+  {
+   "policy": "fifo",
+   "n_fires": 217,
+   "served_share": 0.9631,
+   "mean_arrival_h": 1.631,
+   "median_arrival_h": 1.198,
+   "norm_ok_share": 0.8249,
+   "expected_large_share": 0.2177,
+   "expected_mean_area_ha": 15.79,
+   "expected_damage_mln": 25.479,
+   "deficit_groups": 42
+  },
+  {
+   "policy": "fact",
+   "n_fires": 217,
+   "served_share": 1.0,
+   "mean_arrival_h": 1.357,
+   "median_arrival_h": 1.115,
+   "norm_ok_share": 0.8525,
+   "expected_large_share": 0.1793,
+   "expected_mean_area_ha": 9.15,
+   "expected_damage_mln": 22.786,
+   "deficit_groups": 31,
+   "observed_large_share": 0.2074,
+   "observed_mean_area_ha": 51.56
+  }
+ ]
+}

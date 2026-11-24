@@ -1,0 +1,70 @@
+{
+ "features": [
+  "lat",
+  "lon",
+  "month",
+  "doy",
+  "hour",
+  "wind_ms",
+  "np_dist_km",
+  "species",
+  "subject",
+  "delay_h",
+  "n_active_lesn",
+  "n_active_subj"
+ ],
+ "cat_features": [
+  "species",
+  "subject"
+ ],
+ "target": "итоговая площадь ≥ 25 га",
+ "train_years": "2016–2022",
+ "val_years": "2023 (ранняя остановка)",
+ "test_years": "2024–2025",
+ "n_train": 8783,
+ "n_test": 1688,
+ "positive_rate_test": 0.1754,
+ "roc_auc": 0.7471,
+ "pr_auc": 0.4009,
+ "brier": 0.127,
+ "roc_auc_region_a": 0.7557,
+ "n_test_region_a": 1303,
+ "feature_importance": {
+  "lon": 20.03,
+  "delay_h": 19.13,
+  "wind_ms": 18.42,
+  "lat": 9.46,
+  "hour": 7.01,
+  "np_dist_km": 6.17,
+  "doy": 6.05,
+  "species": 4.92,
+  "month": 3.29,
+  "n_active_subj": 2.74,
+  "subject": 1.54,
+  "n_active_lesn": 1.24
+ },
+ "mean_p_by_delay_h": {
+  "0": 0.1032,
+  "0.5": 0.1115,
+  "1": 0.1401,
+  "2": 0.2208,
+  "3": 0.3311,
+  "5": 0.5016
+ },
+ "area_model": {
+  "target": "ln(1 + итоговая площадь, га)",
+  "mae_log": 0.9198,
+  "mae_log_baseline_median": 0.9185,
+  "r2_log": 0.1924,
+  "median_abs_error_ha": 2.725,
+  "spearman": 0.4972,
+  "mean_area_by_delay_h": {
+   "0": 4.512,
+   "0.5": 5.117,
+   "1": 7.049,
+   "2": 11.627,
+   "3": 21.661,
+   "5": 42.148
+  }
+ }
+}

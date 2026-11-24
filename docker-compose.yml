@@ -1,0 +1,23 @@
+services:
+  lesresurs:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      # LLM_PROVIDER: openai              # локальная модель (Ollama / vLLM)
+      # OPENAI_BASE_URL: http://ollama:11434/v1
+      # OPENAI_MODEL: qwen2.5:7b
+      # LLM_PROVIDER: gigachat            # или GigaChat
+      # GIGACHAT_AUTH_KEY: <ключ>
+      # OSRM_URL: http://osrm:5000        # маршруты по графу дорог OpenStreetMap
+      LESRESURS_DATA: /app/backend/data
+    restart: unless-stopped
+
+  # Маршрутизация по дорогам OSM (опционально). Подготовка графа Дальнего Востока:
+  #   wget https://download.geofabrik.de/russia/far-eastern-fed-district-latest.osm.pbf -P osrm/
+  #   docker run -t -v ./osrm:/data osrm/osrm-backend osrm-extract -p /opt/car.lua /data/far-eastern-fed-district-latest.osm.pbf
+  #   docker run -t -v ./osrm:/data osrm/osrm-backend osrm-partition /data/far-eastern-fed-district-latest.osrm
+  #   docker run -t -v ./osrm:/data osrm/osrm-backend osrm-customize /data/far-eastern-fed-district-latest.osrm
+  # osrm:
+  #   image: osrm/osrm-backend
+  #   command: osrm-routed --algorithm mld /data/far-eastern-fed-district-latest.osrm
+  #   volumes: ["./osrm:/data"]
