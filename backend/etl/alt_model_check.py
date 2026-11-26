@@ -4,7 +4,11 @@
 независимо обученными моделями (иные seed и разбиение по годам). Если снижение ущерба
 сохраняется, вывод не зависит от конкретной модели.
 
-Запуск: python -I alt_model_check.py <registry.parquet> <data_dir> [моментов]
+Оценка идёт на всех доступных моментах (по одному на сутки); для каждого варианта модели
+сохраняются seed, разбиение по годам и ROC-AUC на отложенной части, для снижения ущерба —
+95 % бутстрэп-интервал по моментам.
+
+Запуск: python -I alt_model_check.py <registry.parquet> <data_dir> [моментов] [регион]
 """
 from __future__ import annotations
 
@@ -25,12 +29,15 @@ VARIANTS = {"alt_a": dict(seed=7, train_max=2021, val_year=2022),
             "alt_b": dict(seed=202, train_max=2023, val_year=2024)}
 
 
-def train_variants(registry: str, data_dir: str) -> dict[str, str]:
+def train_variants(registry: str, data_dir: str) -> tuple[dict[str, str], dict[str, dict]]:
+    from sklearn.metrics import roc_auc_score
+
     g = prepare(pd.read_parquet(registry))
     mono = [1 if f == "delay_h" else 0 for f in FEATURES]
-    paths = {}
+    paths, meta = {}, {}
     for name, cfg in VARIANTS.items():
         tr, va = g[g.year <= cfg["train_max"]], g[g.year == cfg["val_year"]]
+        te = g[g.year > cfg["val_year"]]
         m = CatBoostClassifier(iterations=600, depth=5, learning_rate=0.06, loss_function="Logloss",
                                monotone_constraints=mono, verbose=0, random_seed=cfg["seed"],
                                thread_count=-1)
@@ -39,8 +46,15 @@ def train_variants(registry: str, data_dir: str) -> dict[str, str]:
         path = str(Path(data_dir) / f"growth_model_{name}.cbm")
         m.save_model(path)
         paths[name] = path
-        print(f"модель {name}: seed={cfg['seed']}, обучение до {cfg['train_max']}")
-    return paths
+        auc = float("nan")
+        if te.y.nunique() > 1:
+            p_te = m.predict_proba(Pool(te[FEATURES], cat_features=CAT))[:, 1]
+            auc = round(float(roc_auc_score(te.y, p_te)), 3)
+        meta[name] = {"seed": cfg["seed"], "train_years_max": cfg["train_max"],
+                      "val_year": cfg["val_year"], "n_train": int(len(tr)),
+                      "roc_auc_holdout": auc}
+        print(f"модель {name}: seed={cfg['seed']}, обучение до {cfg['train_max']}, ROC-AUC {auc}")
+    return paths, meta
 
 
 class AltModel:
@@ -72,8 +86,9 @@ def damage_under(alt: AltModel, ctx: dict, assign: dict) -> float:
     return total
 
 
-def main(registry: str, data_dir: str, limit: int = 250, region: str = "region_a") -> None:
-    paths = train_variants(registry, data_dir)
+def main(registry: str, data_dir: str, limit: int = 100000, region: str = "region_a",
+         n_boot: int = 4000) -> None:
+    paths, variants_meta = train_variants(registry, data_dir)
     alts = {n: AltModel(p) for n, p in paths.items()}
     snaps = planner.historical_snapshots(region, limit=100000)
     df = pd.DataFrame(snaps)
@@ -81,20 +96,35 @@ def main(registry: str, data_dir: str, limit: int = 250, region: str = "region_a
     df = df.sort_values(["day", "n_active", "t"], ascending=[True, False, True]).drop_duplicates("day")
     df = df.head(limit)
 
-    acc = {"main": {"opt": 0.0, "fifo": 0.0}, **{n: {"opt": 0.0, "fifo": 0.0, "better": 0} for n in alts}}
+    acc = {"main": {"opt": 0.0, "fifo": 0.0, "rows": []},
+           **{n: {"opt": 0.0, "fifo": 0.0, "better": 0, "rows": []} for n in alts}}
     for _, row in df.iterrows():
         ctx = planner.build_context(planner.historical_scenario(row.t, region))
         a_opt, _ = optimizer.optimize(ctx)
         a_fifo = optimizer.fifo(ctx)
-        acc["main"]["opt"] += optimizer.evaluate(a_opt, ctx)["expected_damage_rub"]
-        acc["main"]["fifo"] += optimizer.evaluate(a_fifo, ctx)["expected_damage_rub"]
+        m_opt = optimizer.evaluate(a_opt, ctx)["expected_damage_rub"]
+        m_fifo = optimizer.evaluate(a_fifo, ctx)["expected_damage_rub"]
+        acc["main"]["opt"] += m_opt
+        acc["main"]["fifo"] += m_fifo
+        acc["main"]["rows"].append((m_opt, m_fifo))
         for name, alt in alts.items():
             d_opt, d_fifo = damage_under(alt, ctx, a_opt), damage_under(alt, ctx, a_fifo)
             acc[name]["opt"] += d_opt
             acc[name]["fifo"] += d_fifo
+            acc[name]["rows"].append((d_opt, d_fifo))
             acc[name]["better"] = acc[name].get("better", 0) + int(d_opt <= d_fifo)
 
-    out = {"region": region, "moments": len(df), "main_model": {
+    rng = np.random.default_rng(2026)
+
+    def boot_ci(rows, n=n_boot):
+        arr = np.array(rows, dtype=float)
+        idx = rng.integers(0, len(arr), size=(n, len(arr)))
+        red = 100 * (1 - arr[idx, 0].sum(axis=1) / arr[idx, 1].sum(axis=1))
+        return [round(float(np.percentile(red, 2.5)), 2), round(float(np.percentile(red, 97.5)), 2)]
+
+    out = {"region": region, "moments": len(df), "n_boot": n_boot,
+           "variants": variants_meta,
+           "main_model_ci95": boot_ci(acc["main"]["rows"]), "main_model": {
         "opt_mln": round(acc["main"]["opt"] / 1e6, 1), "fifo_mln": round(acc["main"]["fifo"] / 1e6, 1),
         "reduction_pct": round(100 * (1 - acc["main"]["opt"] / acc["main"]["fifo"]), 2)},
         "independent_models": {}}
@@ -103,6 +133,7 @@ def main(registry: str, data_dir: str, limit: int = 250, region: str = "region_a
         out["independent_models"][name] = {
             "opt_mln": round(r["opt"] / 1e6, 1), "fifo_mln": round(r["fifo"] / 1e6, 1),
             "reduction_pct": round(100 * (1 - r["opt"] / r["fifo"]), 2),
+            "ci95": boot_ci(r["rows"]),
             "share_moments_better": round(r["better"] / len(df), 3)}
     json.dump(out, open(Path(data_dir) / "alt_model_check.json", "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)

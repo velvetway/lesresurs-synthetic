@@ -1,0 +1,37 @@
+{
+ "runs": 6,
+ "scenarios": {
+  "region_a": {
+   "pdf": {
+    "min_s": 0.028,
+    "median_s": 0.029,
+    "max_s": 0.042,
+    "size_kb": 65
+   },
+   "xlsx": {
+    "min_s": 0.005,
+    "median_s": 0.005,
+    "max_s": 0.009,
+    "size_kb": 9
+   },
+   "fires": 10,
+   "stations": 9
+  },
+  "region_b": {
+   "pdf": {
+    "min_s": 0.023,
+    "median_s": 0.023,
+    "max_s": 0.034,
+    "size_kb": 60
+   },
+   "xlsx": {
+    "min_s": 0.004,
+    "median_s": 0.004,
+    "max_s": 0.005,
+    "size_kb": 8
+   },
+   "fires": 7,
+   "stations": 12
+  }
+ }
+}
