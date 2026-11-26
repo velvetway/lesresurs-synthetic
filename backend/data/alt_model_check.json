@@ -1,0 +1,23 @@
+{
+ "region": "region_a",
+ "moments": 120,
+ "main_model": {
+  "opt_mln": 77.5,
+  "fifo_mln": 81.6,
+  "reduction_pct": 4.95
+ },
+ "independent_models": {
+  "alt_a": {
+   "opt_mln": 78.1,
+   "fifo_mln": 82.2,
+   "reduction_pct": 5.01,
+   "share_moments_better": 0.592
+  },
+  "alt_b": {
+   "opt_mln": 77.8,
+   "fifo_mln": 81.6,
+   "reduction_pct": 4.65,
+   "share_moments_better": 0.6
+  }
+ }
+}
